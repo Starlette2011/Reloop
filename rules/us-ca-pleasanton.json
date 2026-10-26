@@ -1,0 +1,13 @@
+{
+ "id": "us-ca-pleasanton", "name": "Pleasanton, CA", "country": "US", "lang": "en", "verified": false, "source_url": "",
+ "items": {
+  "plastic_bottle": ["Plastic bottle", "recycle", "Empty it and put the cap back on.", "Pleasanton waste guide (verify)"],
+  "pizza_box": ["Pizza box", "compost", "Greasy boxes go in the green cart. Clean lid tops can be recycled.", "Pleasanton waste guide (verify)"],
+  "plastic_bag": ["Plastic bag", "dropoff", "Not curbside. Return to a store drop-off bin.", "Pleasanton waste guide (verify)"],
+  "glass_jar": ["Glass jar", "recycle", "Rinse and leave the lid off.", "Pleasanton waste guide (verify)"],
+  "battery": ["Battery", "dropoff", "Never in any cart. Use household hazardous waste drop-off.", "Pleasanton waste guide (verify)"],
+  "coffee_cup": ["Coffee cup", "trash", "Plastic-lined cups are not recyclable here.", "Pleasanton waste guide (verify)"],
+  "food_scraps": ["Food scraps", "compost", "Green cart, no plastic bags.", "Pleasanton waste guide (verify)"],
+  "styrofoam": ["Styrofoam", "trash", "Foam is not accepted curbside.", "Pleasanton waste guide (verify)"]
+ }
+}
