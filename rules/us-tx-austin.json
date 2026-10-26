@@ -1,0 +1,13 @@
+{
+ "id": "us-tx-austin", "name": "Austin, TX", "country": "US", "lang": "en", "verified": false, "source_url": "",
+ "items": {
+  "plastic_bottle": ["Plastic bottle", "recycle", "Empty it and put the cap back on.", "Austin Resource Recovery (verify)"],
+  "pizza_box": ["Pizza box", "recycle", "Tear off greasy parts and trash them.", "Austin Resource Recovery (verify)"],
+  "plastic_bag": ["Plastic bag", "dropoff", "Not curbside. Use a store drop-off.", "Austin Resource Recovery (verify)"],
+  "glass_jar": ["Glass jar", "recycle", "Rinse and leave the lid off.", "Austin Resource Recovery (verify)"],
+  "battery": ["Battery", "dropoff", "Use household hazardous waste drop-off.", "Austin Resource Recovery (verify)"],
+  "coffee_cup": ["Coffee cup", "trash", "Plastic-lined cups are not recyclable.", "Austin Resource Recovery (verify)"],
+  "food_scraps": ["Food scraps", "compost", "Compost cart where available, otherwise trash.", "Austin Resource Recovery (verify)"],
+  "styrofoam": ["Styrofoam", "trash", "Foam is not accepted curbside.", "Austin Resource Recovery (verify)"]
+ }
+}
