@@ -1,0 +1,17 @@
+{
+ "id": "global", "name": "Somewhere else (general guidance)", "country": "", "lang": "en", "verified": false, "source_url": "",
+ "items": {
+  "plastic_bottle": ["Plastic bottle", "recycle", "Empty it and replace the cap. Check local rules.", "General guidance"],
+  "glass_jar": ["Glass jar or bottle", "recycle", "Rinse it. Many places want lids off.", "General guidance"],
+  "aluminum_can": ["Aluminum can", "recycle", "Empty it. No need to crush unless your area asks.", "General guidance"],
+  "cardboard": ["Cardboard", "recycle", "Flatten it and keep it dry.", "General guidance"],
+  "paper": ["Paper", "recycle", "Keep it clean and dry.", "General guidance"],
+  "pizza_box": ["Pizza box", "trash", "Greasy cardboard is usually not recyclable. Clean parts may be. Check local rules.", "General guidance"],
+  "plastic_bag": ["Plastic bag", "dropoff", "Usually not curbside. Return to a store drop-off.", "General guidance"],
+  "battery": ["Battery", "dropoff", "Never in household bins. Use a battery or hazardous waste drop-off.", "General guidance"],
+  "coffee_cup": ["Coffee cup", "trash", "Plastic-lined cups are usually not recyclable.", "General guidance"],
+  "food_scraps": ["Food scraps", "compost", "Compost if your area collects it, otherwise trash.", "General guidance"],
+  "styrofoam": ["Styrofoam", "trash", "Foam is rarely accepted curbside.", "General guidance"],
+  "electronics": ["Electronics", "dropoff", "Use an e-waste collection point. Never in household bins.", "General guidance"]
+ }
+}
