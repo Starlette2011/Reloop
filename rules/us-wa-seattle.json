@@ -1,0 +1,13 @@
+{
+ "id": "us-wa-seattle", "name": "Seattle, WA", "country": "US", "lang": "en", "verified": false, "source_url": "",
+ "items": {
+  "plastic_bottle": ["Plastic bottle", "recycle", "Empty it and put the cap back on.", "Seattle Public Utilities (verify)"],
+  "pizza_box": ["Pizza box", "compost", "Food-soiled paper goes in the compost.", "Seattle Public Utilities (verify)"],
+  "plastic_bag": ["Plastic bag", "dropoff", "Not curbside. Use a store drop-off.", "Seattle Public Utilities (verify)"],
+  "glass_jar": ["Glass jar", "recycle", "Rinse and leave the lid off.", "Seattle Public Utilities (verify)"],
+  "battery": ["Battery", "dropoff", "Use a battery drop-off location.", "Seattle Public Utilities (verify)"],
+  "coffee_cup": ["Coffee cup", "compost", "Accepted only if certified compostable.", "Seattle Public Utilities (verify)"],
+  "food_scraps": ["Food scraps", "compost", "Yard and food waste cart.", "Seattle Public Utilities (verify)"],
+  "styrofoam": ["Styrofoam", "dropoff", "Take to a foam drop-off event or site.", "Seattle Public Utilities (verify)"]
+ }
+}
