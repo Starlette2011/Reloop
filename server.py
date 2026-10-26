@@ -107,8 +107,8 @@ def research(place, label):
             res = {"action": o["action"], "tip": clean(o.get("tip", "")), "source": clean(o.get("source_name", "Official site"), 80), "url": url}
             _cache[k] = (time.time(), res)
             return res
-    except Exception:
-        pass
+    except Exception as e:
+        print("research failed:", repr(e))
     return None
 
 @functools.lru_cache(maxsize=2048)
@@ -134,7 +134,7 @@ def jurisdictions():
 
 @app.post("/api/classify")
 def classify(req: Req, request: Request):
-    fwd = request.headers.get("x-forwarded-for", "")
+fwd = request.headers.get("x-forwarded-for", "")
 ip, now = (fwd.split(",")[0].strip() or (request.client.host if request.client else "?")), time.time()
     hits[ip] = [t for t in hits[ip] if now - t < 60]
     if len(hits[ip]) >= RATE:
