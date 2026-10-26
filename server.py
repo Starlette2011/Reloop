@@ -134,7 +134,8 @@ def jurisdictions():
 
 @app.post("/api/classify")
 def classify(req: Req, request: Request):
-    ip, now = request.client.host if request.client else "?", time.time()
+    fwd = request.headers.get("x-forwarded-for", "")
+ip, now = (fwd.split(",")[0].strip() or (request.client.host if request.client else "?")), time.time()
     hits[ip] = [t for t in hits[ip] if now - t < 60]
     if len(hits[ip]) >= RATE:
         raise HTTPException(429, "Too many requests. Wait a minute and try again.")
