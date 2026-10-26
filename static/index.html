@@ -40,17 +40,18 @@ table{border-collapse:collapse;width:100%;margin-top:.75rem}td,th{text-align:lef
 <button role="tab" data-t="food" aria-selected="false">Route surplus food</button>
 <button role="tab" data-t="city" aria-selected="false">City view</button></nav>
 <main>
-<section id="scan" class="on"><h2>Sort an item</h2><p class="sub">Photo or name. The answer follows your city's rules and cites them. Low confidence returns the safe option.</p>
-<div class="row"><select class="city" aria-label="City"></select><input id="s-file" type="file" accept="image/*" capture="environment" aria-label="Photo"><input id="s-text" placeholder="or type: pizza box"><button class="go" id="s-go">Check item</button></div><div id="s-out"></div></section>
+<section id="scan" class="on"><h2>Sort an item</h2><p class="sub">Type your city and country, then add a photo or an item name. Answers cite a source and say how they were found. Low confidence returns the safe option.</p>
+<div class="row"><input class="city" list="places" placeholder="Your city, country" aria-label="Location"><input id="s-file" type="file" accept="image/*" capture="environment" aria-label="Photo"><input id="s-text" placeholder="or type: pizza box"><button class="go" id="s-go">Check item</button></div><div id="s-out"></div></section>
 
 <section id="audit"><h2>Audit a bin</h2><p class="sub">Upload photos of items pulled from a bin or load. Reloop reports the contamination rate: the share of items that do not belong in recycling.</p>
-<div class="row"><select class="city" aria-label="City"></select><input id="a-files" type="file" accept="image/*" multiple aria-label="Photos"><input id="a-text" placeholder="or list items: bottle, pizza, bag"><button class="go" id="a-go">Run audit</button></div><div id="a-out"></div></section>
+<div class="row"><input class="city" list="places" placeholder="Your city, country" aria-label="Location"><input id="a-files" type="file" accept="image/*" multiple aria-label="Photos"><input id="a-text" placeholder="or list items: bottle, pizza, bag"><button class="go" id="a-go">Run audit</button></div><div id="a-out"></div></section>
 
 <section id="food"><h2>Route surplus food</h2><p class="sub">List what a store or restaurant can't sell. Reloop matches it to the nearest food bank that accepts that category and tracks pounds diverted.</p>
 <div class="row"><input id="f-name" placeholder="Item, e.g. day-old bread"><select id="f-cat" aria-label="Category"><option>produce</option><option>bakery</option><option>prepared</option><option>dairy</option></select><input id="f-lbs" type="number" min="1" value="20" style="width:90px" aria-label="Pounds"><button class="go" id="f-go">Find a match</button></div><div id="f-out"></div></section>
 
-<section id="city"><h2>City view</h2><p class="sub">The most common items sent to non-recycling bins, from the shared scan log, with ready-to-print bin-tag messages.</p><div id="c-out"></div></section>
+<section id="city"><h2>City view</h2><p class="sub">The most common items sent to non-recycling bins, from the scan log on this device, with ready-to-print bin-tag messages.</p><div id="c-out"></div></section>
 </main>
+<datalist id="places"></datalist>
 <script>
 const $=s=>document.querySelector(s),COL={recycle:'--recycle',compost:'--compost',trash:'--trash',dropoff:'--dropoff'};
 const LBL={recycle:'Recycling cart',compost:'Compost cart',trash:'Trash',dropoff:'Special drop-off'};
@@ -58,12 +59,13 @@ const get=k=>JSON.parse(localStorage.getItem(k)||'[]'),put=(k,v)=>localStorage.s
 const b64=f=>new Promise(r=>{const i=new Image();i.onload=()=>{const k=Math.min(1,1024/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.8).split(',')[1])};i.src=URL.createObjectURL(f)});
 const BANKS=[{n:'Eastside Community Pantry',mi:1.4,takes:['produce','bakery','prepared']},{n:'Valley Food Share',mi:3.1,takes:['produce','dairy','bakery']},{n:'Hope Kitchen',mi:5.2,takes:['prepared','dairy']}];
 async function classify(city,text,file){
- const body={jurisdiction:city,lang:navigator.language||'en',text:text||null,image:file?await b64(file):null};
+ const body={place:city,lang:navigator.language||'en',text:text||null,image:file?await b64(file):null};
  try{const r=await fetch('/api/classify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
  if(!r.ok)throw 0;const d=await r.json();put('reloop',{t:Date.now(),city,...d});return d}
- catch{return{item:'Error',action:'trash',tip:'Could not reach the server. Start it with: uvicorn server:app',source:'',confidence:0,safe:true,scope:'default'}}}
-const card=d=>`<div class="res" style="--c:var(${COL[d.action]})"><b>${d.item}: ${LBL[d.action]}</b><div>${d.tip}</div><small>${d.scope==='default'?'Low confidence, safe default':d.scope==='global'?'General guidance. Local rules may differ.':(d.verified?'Verified: ':'Unverified: ')+d.source}${d.source_url?` · <a href="${d.source_url}">source</a>`:''}</small></div>`;
-fetch('/api/jurisdictions').then(r=>r.json()).then(c=>document.querySelectorAll('.city').forEach(s=>{s.innerHTML=c.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');s.value=localStorage.getItem('reloop-place')||'global';s.onchange=()=>{localStorage.setItem('reloop-place',s.value);document.querySelectorAll('.city').forEach(o=>o.value=s.value)}}));
+ catch{return{item:'Error',action:'trash',tip:'Could not reach the server. Start it with: uvicorn server:app',source:'',source_url:'',confidence:0,safe:true,scope:'default'}}}
+const card=d=>`<div class="res" style="--c:var(${COL[d.action]})"><b>${d.item}: ${LBL[d.action]}</b><div>${d.tip}</div><small>${{default:'Low confidence, safe default',global:'General guidance. Local rules may differ.',researched:'AI-researched from '+d.source+'. Confirm with your local authority.',local:(d.verified?'Verified: ':'Unverified: ')+d.source}[d.scope]}${d.source_url?` · <a href="${d.source_url}" target="_blank" rel="noopener">source</a>`:''}</small></div>`;
+fetch('/api/jurisdictions').then(r=>r.json()).then(c=>{$('#places').innerHTML=c.filter(x=>x.id!=='global').map(x=>`<option value="${x.name}">`).join('')});
+document.querySelectorAll('.city').forEach(s=>{s.value=localStorage.getItem('reloop-place')||'';s.onchange=()=>{localStorage.setItem('reloop-place',s.value);document.querySelectorAll('.city').forEach(o=>o.value=s.value)}});
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
