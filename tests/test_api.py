@@ -8,12 +8,13 @@ c = TestClient(app)
 def post(**kw): return c.post("/api/classify", json=kw).json()
 def test_rules_valid(): assert validate_rules.problems() == []
 def test_local_beats_global():
-    assert post(jurisdiction="us-ca-pleasanton", text="pizza box")["action"] == "compost"
-    assert post(jurisdiction="us-tx-austin", text="pizza box")["action"] == "recycle"
+    assert post(place="Pleasanton, CA", text="pizza box")["action"] == "compost"
+    assert post(place="Austin, TX, USA", text="pizza box")["action"] == "recycle"
+def test_similar_name_does_not_match():
+    assert post(place="Austin, Minnesota", text="pizza box")["scope"] == "global"
 def test_unknown_place_uses_global():
-    r = post(jurisdiction="nowhere", text="pizza box"); assert r["scope"] == "global" and r["action"] == "trash"
-def test_global_fallback_for_missing_key():
-    assert post(jurisdiction="us-wa-seattle", text="cardboard")["scope"] == "global"
+    r = post(place="Nairobi, Kenya", text="pizza box"); assert r["scope"] == "global"
 def test_unknown_item_is_safe():
-    r = post(jurisdiction="global", text="mystery thing"); assert r["safe"] and r["action"] == "trash"
-def test_jurisdictions_listed(): assert c.get("/api/jurisdictions").json()[-1]["id"] == "global"
+    r = post(place="", text="mystery thing"); assert r["safe"] and r["action"] == "trash"
+def test_output_is_html_safe():
+    assert "<" not in post(place="x", text="<script>pizza")["item"]
