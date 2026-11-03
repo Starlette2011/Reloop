@@ -18,3 +18,9 @@ def test_unknown_item_is_safe():
     r = post(place="", text="mystery thing"); assert r["safe"] and r["action"] == "trash"
 def test_output_is_html_safe():
     assert "<" not in post(place="x", text="<script>pizza")["item"]
+def test_ambiguous_phrases_are_safe():
+    for t in ["paper towel", "food container", "cupcake wrapper"]:
+        assert post(place="", text=t)["safe"]
+def test_longest_phrase_wins():
+    assert post(place="", text="glass bottle")["item"] == "Glass jar or bottle"
+    assert post(place="", text="paper cup")["item"] == "Coffee cup"
