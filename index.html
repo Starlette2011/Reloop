@@ -57,7 +57,11 @@ const $=s=>document.querySelector(s),COL={recycle:'--recycle',compost:'--compost
 const LBL={recycle:'Recycling cart',compost:'Compost cart',trash:'Trash',dropoff:'Special drop-off'};
 const esc=s=>String(s||'').replace(/[<>&"']/g,'').slice(0,60);
 const get=k=>JSON.parse(localStorage.getItem(k)||'[]'),put=(k,v)=>localStorage.setItem(k,JSON.stringify([...get(k),v]));
-const KW={bottle:'plastic_bottle',pizza:'pizza_box',bag:'plastic_bag',jar:'glass_jar',glass:'glass_jar',batter:'battery',cup:'coffee_cup',coffee:'coffee_cup',food:'food_scraps',scrap:'food_scraps',foam:'styrofoam',styro:'styrofoam',can:'aluminum_can',cardboard:'cardboard',paper:'paper',phone:'electronics',electronic:'electronics',charger:'electronics'};
+const KW={plastic_bottle:['plastic bottle','water bottle','soda bottle','bottle'],glass_jar:['glass jar','glass bottle','jar'],aluminum_can:['aluminum can','soda can','beer can','can'],cardboard:['cardboard box','cardboard'],paper:['newspaper','office paper','paper'],pizza_box:['pizza box'],plastic_bag:['plastic bag','grocery bag'],battery:['battery','batteries'],coffee_cup:['coffee cup','paper cup'],food_scraps:['food scraps','food waste','banana peel','apple core'],styrofoam:['styrofoam','foam'],electronics:['phone','charger','electronics','laptop']};
+const NO=['paper towel','tissue','napkin','food container','wrapper','receipt','foam cup','cupcake','sunglasses','teabag','tea bag'];
+function match(t){t=t.toLowerCase().replace(/[^a-z ]/g,' ');if(NO.some(n=>t.includes(n)))return null;
+ const h=[];for(const[k,ps]of Object.entries(KW))for(const p of ps)if(new RegExp('\\b'+p+'s?\\b').test(t))h.push([p.length,k]);
+ h.sort((a,b)=>b[0]-a[0]);return h.length&&(h.length===1||h[0][0]>h[1][0]||h[0][1]===h[1][1])?h[0][1]:null}
 const BANKS=[{n:'Eastside Community Pantry',mi:1.4,takes:['produce','bakery','prepared']},{n:'Valley Food Share',mi:3.1,takes:['produce','dairy','bakery']},{n:'Hope Kitchen',mi:5.2,takes:['prepared','dairy']}];
 let PACKS={};
 const ready=fetch('packs.json').then(r=>r.json()).then(ids=>Promise.all(ids.map(i=>fetch(`rules/${i}.json`).then(r=>r.json())))).then(a=>{a.forEach(p=>PACKS[p.id]=p);$('#places').innerHTML=a.filter(p=>p.id!=='global').map(p=>`<option value="${p.name}">`).join('')});
