@@ -31,14 +31,12 @@ input,select{font:inherit;padding:.55rem .7rem;border:1.5px solid var(--line);bo
 .bar{height:14px;background:var(--line);border-radius:7px;overflow:hidden;margin:.5rem 0}
 .bar i{display:block;height:100%;background:var(--dropoff)}
 table{border-collapse:collapse;width:100%;margin-top:.75rem}td,th{text-align:left;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
-.tag{font-style:italic;background:#fff;border:1.5px dashed var(--ink);padding:.6rem .8rem;border-radius:8px;margin:.5rem 0}
 </style></head><body>
-<header><h1>Reloop</h1><p>Local recycling rules for supported cities, bin audits, surplus food routing, and a city view of which mistakes to fix next. Runs entirely in your browser.</p></header>
+<header><h1>Reloop</h1><p>Local recycling rules for supported cities, bin audits that measure contamination, and surplus food routing. Runs entirely in your browser.</p></header>
 <nav role="tablist">
 <button role="tab" data-t="scan" aria-selected="true">Sort an item</button>
 <button role="tab" data-t="audit" aria-selected="false">Audit a bin</button>
-<button role="tab" data-t="food" aria-selected="false">Route surplus food</button>
-<button role="tab" data-t="city" aria-selected="false">City view</button></nav>
+<button role="tab" data-t="food" aria-selected="false">Route surplus food</button></nav>
 <main>
 <section id="scan" class="on"><h2>Sort an item</h2><p class="sub">Type your city and an item. Supported cities give cited local answers. Other places get clearly labeled general guidance. Unknown or unclear items get the safe option.</p>
 <div class="row"><input class="city" list="places" placeholder="Your city, state" aria-label="Location"><input id="s-text" placeholder="e.g. pizza box"><button class="go" id="s-go">Check item</button></div><div id="s-out"></div></section>
@@ -48,8 +46,6 @@ table{border-collapse:collapse;width:100%;margin-top:.75rem}td,th{text-align:lef
 
 <section id="food"><h2>Route surplus food</h2><p class="sub">Prototype with sample food banks. Matches a listing to the nearest one that accepts that category and tracks pounds diverted.</p>
 <div class="row"><input id="f-name" placeholder="Item, e.g. day-old bread"><select id="f-cat" aria-label="Category"><option>produce</option><option>bakery</option><option>prepared</option><option>dairy</option></select><input id="f-lbs" type="number" min="1" value="20" style="width:90px" aria-label="Pounds"><button class="go" id="f-go">Find a match</button></div><div id="f-out"></div></section>
-
-<section id="city"><h2>City view</h2><p class="sub">The most common items sent to non-recycling bins, from the scan log on this device, with ready-to-print bin-tag messages.</p><div id="c-out"></div></section>
 </main>
 <datalist id="places"></datalist>
 <script>
@@ -73,13 +69,12 @@ async function classify(place,text){
   const pk=Object.values(PACKS).find(x=>x.id!=='global'&&p.includes(x.name.toLowerCase())),e=pk&&pk.items[key];
   if(e)d={item:e[0],action:e[1],tip:e[2],source:e[3],scope:'local',verified:pk.verified,url:pk.source_url,checked:pk.checked};
   else{const g=PACKS.global.items[key];d={item:g[0],action:g[1],tip:g[2],source:g[3],scope:'global'}}}
- put('reloop',{t:Date.now(),city:place,...d,safe:d.scope==='default'});return d}
+ return d}
 const card=d=>`<div class="res" style="--c:var(${COL[d.action]})"><b>${d.item}: ${LBL[d.action]}</b><div>${d.tip}</div><small>${{default:'Not sure, safe default',global:'General guidance. Local rules may differ.',local:(d.verified?'Verified: ':'Unverified: ')+d.source+(d.checked?', checked '+d.checked:'')}[d.scope]}${d.url?` · <a href="${d.url}" target="_blank" rel="noopener">source</a>`:''}</small></div>`;
 document.querySelectorAll('.city').forEach(s=>{s.value=localStorage.getItem('reloop-place')||'';s.onchange=()=>{localStorage.setItem('reloop-place',s.value);document.querySelectorAll('.city').forEach(o=>o.value=s.value)}});
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
- document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
- if(b.dataset.t==='city')renderCity()});
+ document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t))});
 $('#s-go').onclick=async()=>{$('#s-out').innerHTML=card(await classify($('#scan .city').value,$('#s-text').value))};
 $('#a-go').onclick=async()=>{const city=$('#audit .city').value,items=$('#a-text').value.split(',').filter(x=>x.trim());
  if(!items.length){$('#a-out').innerHTML='List some items first.';return}
@@ -92,8 +87,4 @@ $('#f-go').onclick=()=>{const cat=$('#f-cat').value,lbs=+$('#f-lbs').value||0,
  if(!m){$('#f-out').innerHTML='No food bank accepts this category.';return}
  put('reloop-food',{lbs,cat,bank:m.n});const tot=get('reloop-food').reduce((s,x)=>s+x.lbs,0);
  $('#f-out').innerHTML=`<div class="res" style="--c:var(--compost)"><b>${m.n}</b><div>${m.mi} miles away. Accepts ${cat}. Send ${lbs} lb.</div><small>Total diverted so far: ${tot} lb (sample food bank data)</small></div>`};
-function renderCity(){const log=get('reloop').filter(x=>x.action!=='recycle'&&!x.safe),n={};
- log.forEach(x=>{n[x.item]=n[x.item]||{c:0,x};n[x.item].c++});
- const top=Object.values(n).sort((a,b)=>b.c-a.c).slice(0,3);
- $('#c-out').innerHTML=top.length?top.map(o=>`<div><b>${o.x.item}</b> sent to ${LBL[o.x.action]}: ${o.c} scans<div class="tag">Oops tag: "${o.x.item} does not go in recycling. ${o.x.tip}"</div></div>`).join(''):'No scans yet. Sort an item or run an audit first.'}
 </script></body></html>
