@@ -20,11 +20,22 @@ def load_packs():
 
 PACKS = load_packs()
 GLOBAL = PACKS["global"]
-KEYWORDS = {"bottle": "plastic_bottle", "pizza": "pizza_box", "bag": "plastic_bag", "jar": "glass_jar",
-            "glass": "glass_jar", "batter": "battery", "cup": "coffee_cup", "coffee": "coffee_cup",
-            "food": "food_scraps", "scrap": "food_scraps", "foam": "styrofoam", "styro": "styrofoam",
-            "can": "aluminum_can", "cardboard": "cardboard", "paper": "paper", "phone": "electronics",
-            "electronic": "electronics", "charger": "electronics"}
+
+PHRASES = {"plastic_bottle": ["plastic bottle", "water bottle", "soda bottle", "bottle"],
+           "glass_jar": ["glass jar", "glass bottle", "jar"],
+           "aluminum_can": ["aluminum can", "soda can", "beer can", "can"],
+           "cardboard": ["cardboard box", "cardboard"],
+           "paper": ["newspaper", "office paper", "paper"],
+           "pizza_box": ["pizza box"],
+           "plastic_bag": ["plastic bag", "grocery bag"],
+           "battery": ["battery", "batteries"],
+           "coffee_cup": ["coffee cup", "paper cup"],
+           "food_scraps": ["food scraps", "food waste", "banana peel", "apple core"],
+           "styrofoam": ["styrofoam", "foam"],
+           "electronics": ["phone", "charger", "electronics", "laptop"]}
+NO = ["paper towel", "tissue", "napkin", "food container", "wrapper", "receipt",
+      "foam cup", "cupcake", "sunglasses", "teabag", "tea bag"]
+
 hits = collections.defaultdict(list)
 _cache = {}
 app = FastAPI(title="Reloop")
@@ -64,6 +75,19 @@ def match_pack(place):
             return v
     return None
 
+def match_item(text):
+    """Whole-phrase match. Ambiguous or excluded phrases return None so the app falls back to the safe default."""
+    t = re.sub(r"[^a-z ]", " ", (text or "").lower())
+    if any(n in t for n in NO):
+        return None
+    found = sorted(((len(p), k) for k, ps in PHRASES.items() for p in ps
+                    if re.search(rf"\b{p}s?\b", t)), reverse=True)
+    if not found:
+        return None
+    if len(found) > 1 and found[0][0] == found[1][0] and found[0][1] != found[1][1]:
+        return None
+    return found[0][1]
+
 def identify(req):
     """Return (key or None, label, confidence)."""
     if has_key() and (req.image or req.text):
@@ -78,10 +102,9 @@ def identify(req):
             return o.get("key"), clean(o.get("label", ""), 60), float(o.get("confidence", 0))
         except Exception:
             return None, "", 0.0
-    t = (req.text or "").lower()
-    for word, key in KEYWORDS.items():
-        if word in t:
-            return key, clean(req.text, 60), 0.9
+    key = match_item(req.text)
+    if key:
+        return key, clean(req.text, 60), 0.9
     return None, clean(req.text or "", 60), 0.0
 
 def research(place, label):
@@ -122,10 +145,11 @@ def localize(item, tip, lang):
     except Exception:
         return item, tip
 
-def out(item, action, tip, source, url, conf, scope, lang, verified=False):
+def out(item, action, tip, source, url, conf, scope, lang, verified=False, checked=""):
     item, tip = localize(clean(item, 60), clean(tip), lang)
     return {"item": item, "action": action, "tip": tip, "source": clean(source, 80), "source_url": safe_url(url),
-            "confidence": conf, "safe": scope == "default", "scope": scope, "verified": verified}
+            "confidence": conf, "safe": scope == "default", "scope": scope, "verified": verified,
+            "checked": clean(checked, 20)}
 
 @app.get("/api/jurisdictions")
 def jurisdictions():
@@ -134,8 +158,8 @@ def jurisdictions():
 
 @app.post("/api/classify")
 def classify(req: Req, request: Request):
-fwd = request.headers.get("x-forwarded-for", "")
-ip, now = (fwd.split(",")[0].strip() or (request.client.host if request.client else "?")), time.time()
+    fwd = request.headers.get("x-forwarded-for", "")
+    ip, now = (fwd.split(",")[0].strip() or (request.client.host if request.client else "?")), time.time()
     hits[ip] = [t for t in hits[ip] if now - t < 60]
     if len(hits[ip]) >= RATE:
         raise HTTPException(429, "Too many requests. Wait a minute and try again.")
@@ -150,7 +174,8 @@ ip, now = (fwd.split(",")[0].strip() or (request.client.host if request.client e
     pack = match_pack(place)
     if pack and key in pack["items"]:                      # 1. bundled local pack
         e = pack["items"][key]
-        return out(e[0], e[1], e[2], e[3], pack.get("source_url", ""), conf, "local", req.lang, pack.get("verified", False))
+        return out(e[0], e[1], e[2], e[3], pack.get("source_url", ""), conf, "local", req.lang,
+                   pack.get("verified", False), pack.get("checked", ""))
     if place and has_key():                                # 2. AI web research for this exact place
         r = research(place, label)
         if r:
