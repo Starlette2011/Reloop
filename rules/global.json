@@ -1,5 +1,6 @@
 {
  "id": "global", "name": "Somewhere else (general guidance)", "country": "", "lang": "en", "verified": false, "source_url": "",
+ "asks": {"pizza_box": {"q": "Is the box greasy or food-soiled?", "no": ["recycle", "Clean, dry cardboard is usually recyclable. Remove any food bits. Check local rules."]}},
  "items": {
   "plastic_bottle": ["Plastic bottle", "recycle", "Empty it and replace the cap. Check local rules.", "General guidance"],
   "glass_jar": ["Glass jar or bottle", "recycle", "Rinse it. Many places want lids off.", "General guidance"],
