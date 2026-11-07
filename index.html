@@ -21,7 +21,7 @@ section{display:none;background:var(--card);border:1px solid var(--line);border-
 section.on{display:block}
 h2{font:800 1.6rem 'Bricolage Grotesque';margin:0 0 .25rem}
 .sub{color:var(--mut);margin:0 0 1rem;max-width:60ch}
-.row{display:flex;gap:.6rem;flex-wrap:wrap;margin:.75rem 0}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
 input,select{font:inherit;padding:.55rem .7rem;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
 .go{font:500 1rem 'DM Sans';padding:.6rem 1.2rem;border:0;border-radius:8px;background:var(--ink);color:#fff;cursor:pointer}
 .res{margin-top:1rem;padding:1rem 1.25rem;border-left:8px solid var(--c,var(--line));background:#fff;border-radius:0 10px 10px 0}
@@ -41,13 +41,13 @@ table{border-collapse:collapse;width:100%;margin-top:.75rem}td,th{text-align:lef
 <button role="tab" data-t="food" aria-selected="false">Route surplus food</button></nav>
 <main>
 <section id="scan" class="on"><h2>Sort an item</h2><p class="sub">Type your city, then take a photo or type an item. Photos are analyzed on your device and never uploaded. Unclear photos get the safe option.</p>
-<div class="row"><input class="city" list="places" placeholder="Your city, state" aria-label="Location"><input id="s-file" type="file" accept="image/*" capture="environment" aria-label="Photo"><input id="s-text" placeholder="or type: pizza box"><button class="go" id="s-go">Check item</button></div><div id="s-out"></div></section>
+<div class="row"><input class="city" list="places" placeholder="Your city, state" aria-label="Location"><input id="s-file" type="file" accept="image/*" capture="environment" aria-label="Photo"><input id="s-text" placeholder="or type: pizza box" aria-label="Item name"><button class="go" id="s-go">Check item</button></div><div id="s-out" aria-live="polite"></div></section>
 
-<section id="audit"><h2>Audit a bin</h2><p class="sub">Add photos of items from a bin or load, or list them. Reloop reports the contamination rate: the share of items that do not belong in recycling.</p>
-<div class="row"><input class="city" list="places" placeholder="Your city, state" aria-label="Location"><input id="a-files" type="file" accept="image/*" multiple aria-label="Photos"><input id="a-text" placeholder="or list: bottle, pizza box, bag" style="min-width:240px"><button class="go" id="a-go">Run audit</button></div><div id="a-out"></div></section>
+<section id="audit"><h2>Audit a bin</h2><p class="sub">Add photos of items from a bin or load, or list them. Reloop reports the contamination rate: the share of items that do not belong in recycling. You can download the results as a CSV.</p>
+<div class="row"><input class="city" list="places" placeholder="Your city, state" aria-label="Location"><input id="a-files" type="file" accept="image/*" multiple aria-label="Photos"><input id="a-text" placeholder="or list: bottle, pizza box, bag" aria-label="Items list" style="min-width:240px"><button class="go" id="a-go">Run audit</button></div><div id="a-out" aria-live="polite"></div></section>
 
 <section id="food"><h2>Route surplus food</h2><p class="sub">Prototype with sample food banks. Matches a listing to the nearest one that accepts that category and tracks pounds diverted.</p>
-<div class="row"><input id="f-name" placeholder="Item, e.g. day-old bread"><select id="f-cat" aria-label="Category"><option>produce</option><option>bakery</option><option>prepared</option><option>dairy</option></select><input id="f-lbs" type="number" min="1" value="20" style="width:90px" aria-label="Pounds"><button class="go" id="f-go">Find a match</button></div><div id="f-out"></div></section>
+<div class="row"><input id="f-name" placeholder="Item, e.g. day-old bread" aria-label="Food item"><select id="f-cat" aria-label="Category"><option>produce</option><option>bakery</option><option>prepared</option><option>dairy</option></select><input id="f-lbs" type="number" min="1" value="20" style="width:90px" aria-label="Pounds"><button class="go" id="f-go">Find a match</button></div><div id="f-out" aria-live="polite"></div></section>
 </main>
 <datalist id="places"></datalist>
 <script>
@@ -84,11 +84,12 @@ async function classify(place,text,file,status){
  else key=match(text||'');
  let d={item:file?'Unclear photo':esc(text)||'Unclear item',action:'trash',tip:SAFE,source:'Safe default',scope:'default'};
  if(key){
-  const pk=Object.values(PACKS).find(x=>x.id!=='global'&&p.includes(x.name.toLowerCase())),e=pk&&pk.items[key];
-  if(e)d={item:e[0],action:e[1],tip:e[2],source:e[3],scope:'local',verified:pk.verified,url:pk.source_url,checked:pk.checked,ai};
-  else{const g=PACKS.global.items[key];d={item:g[0],action:g[1],tip:g[2],source:g[3],scope:'global',ai}}}
+  const pk=Object.values(PACKS).find(x=>x.id!=='global'&&p.includes(x.name.toLowerCase())),e=pk&&pk.items[key],src=e?pk:PACKS.global,g=e||src.items[key];
+  d={item:g[0],action:g[1],tip:g[2],source:g[3],scope:e?'local':'global',verified:e&&pk.verified,url:e&&pk.source_url,checked:e&&pk.checked,ai,ask:(src.asks||{})[key]}}
  return d}
 const card=d=>`<div class="res" style="--c:var(${COL[d.action]})"><b>${d.item}: ${LBL[d.action]}</b><div>${d.tip}</div><small>${{default:'Not sure, safe default',global:'General guidance. Local rules may differ.',local:(d.verified?'Verified: ':'Unverified: ')+d.source+(d.checked?', checked '+d.checked:'')}[d.scope]}${d.url?` · <a href="${d.url}" target="_blank" rel="noopener">source</a>`:''}${d.ai?` · photo match ${Math.round(d.ai*100)}%, on-device AI, can't see grease or contamination`:''}</small></div>`;
+function show(out,d,pre=''){out.innerHTML=pre+card(d)+(d.ask?`<div class="row" role="group" aria-label="${d.ask.q}"><span>${d.ask.q}</span><button class="go" data-a="y">Yes</button><button class="go" data-a="n">No</button></div>`:'');
+ out.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>show(out,b.dataset.a==='n'?{...d,action:d.ask.no[0],tip:d.ask.no[1],ask:null,ai:0}:{...d,ask:null},pre))}
 document.querySelectorAll('.city').forEach(s=>{s.value=localStorage.getItem('reloop-place')||'';s.onchange=()=>{localStorage.setItem('reloop-place',s.value);document.querySelectorAll('.city').forEach(o=>o.value=s.value)}});
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
@@ -96,18 +97,25 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 $('#s-go').onclick=async()=>{const f=$('#s-file').files[0],out=$('#s-out'),st=m=>out.innerHTML=`<div class="stat">${m}</div>`;
  st(f?'Working…':'Checking…');
  const d=await classify($('#scan .city').value,$('#s-text').value,f,st);
- out.innerHTML=(f?`<img class="thumb" alt="Your photo" src="${URL.createObjectURL(f)}">`:'')+card(d)};
+ show(out,d,f?`<img class="thumb" alt="Your photo" src="${URL.createObjectURL(f)}">`:'')};
 $('#a-go').onclick=async()=>{const city=$('#audit .city').value,files=[...$('#a-files').files],items=$('#a-text').value.split(',').filter(x=>x.trim()),out=$('#a-out');
  if(!files.length&&!items.length){out.innerHTML='Add photos or list some items first.';return}
  const rs=[],total=files.length+items.length;
  for(const [i,f] of files.entries())rs.push(await classify(city,'',f,m=>out.innerHTML=`<div class="stat">Item ${i+1} of ${total}: ${m}</div>`));
  for(const t of items)rs.push(await classify(city,t.trim()));
- const bad=rs.filter(r=>r.action!=='recycle').length,pct=Math.round(100*bad/rs.length);
+ const bad=rs.filter(r=>r.action!=='recycle').length,pct=Math.round(100*bad/rs.length),
+ top=Object.entries(rs.filter(r=>r.action!=='recycle'&&r.scope!=='default').reduce((m,r)=>(m[r.item]=(m[r.item]||0)+1,m),{})).sort((a,b)=>b[1]-a[1]).slice(0,3);
  out.innerHTML=`<div class="big">${pct}%</div>contaminated: ${bad} of ${rs.length} items do not belong in recycling<div class="bar"><i style="width:${pct}%"></i></div>
- <table><tr><th>Item</th><th>Belongs in</th></tr>${rs.map(r=>`<tr><td>${r.item}</td><td>${LBL[r.action]}${r.scope==='default'?' (unsure)':''}</td></tr>`).join('')}</table>`};
+ <p>Top mistakes: ${top.map(([k,n])=>`${k} (${n})`).join(', ')||'none'}</p>
+ <table><tr><th>Item</th><th>Belongs in</th></tr>${rs.map(r=>`<tr><td>${r.item}</td><td>${LBL[r.action]}${r.scope==='default'?' (unsure)':''}</td></tr>`).join('')}</table>
+ <div class="row"><button class="go" id="a-csv">Download CSV</button></div>`;
+ $('#a-csv').onclick=()=>{const q=s=>{s=String(s);if(/^[=+\-@]/.test(s))s="'"+s;return`"${s.replace(/"/g,'""')}"`},
+  csv=['date,place,item,belongs_in,answer_source',...rs.map(r=>[new Date().toISOString().slice(0,10),city,r.item,LBL[r.action],r.scope].map(q).join(','))].join('\n'),a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='reloop-audit.csv';a.click()}};
 $('#f-go').onclick=()=>{const cat=$('#f-cat').value,lbs=+$('#f-lbs').value||0,
  m=BANKS.filter(b=>b.takes.includes(cat)).sort((a,b)=>a.mi-b.mi)[0];
  if(!m){$('#f-out').innerHTML='No food bank accepts this category.';return}
  put('reloop-food',{lbs,cat,bank:m.n});const tot=get('reloop-food').reduce((s,x)=>s+x.lbs,0);
  $('#f-out').innerHTML=`<div class="res" style="--c:var(--compost)"><b>${m.n}</b><div>${m.mi} miles away. Accepts ${cat}. Send ${lbs} lb.</div><small>Total diverted so far: ${tot} lb (sample food bank data)</small></div>`};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
