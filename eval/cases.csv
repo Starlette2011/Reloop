@@ -1,37 +1,40 @@
-place,item,expected,source_url
-"Pleasanton, CA",plastic bottle,,
-"Pleasanton, CA",glass jar,,
-"Pleasanton, CA",aluminum can,,
-"Pleasanton, CA",cardboard box,,
-"Pleasanton, CA",newspaper,,
-"Pleasanton, CA",pizza box,,
-"Pleasanton, CA",plastic bag,,
-"Pleasanton, CA",battery,,
-"Pleasanton, CA",coffee cup,,
-"Pleasanton, CA",food scraps,,
-"Pleasanton, CA",styrofoam,,
-"Pleasanton, CA",old phone,,
-"Seattle, WA",plastic bottle,,
-"Seattle, WA",glass jar,,
-"Seattle, WA",aluminum can,,
-"Seattle, WA",cardboard box,,
-"Seattle, WA",newspaper,,
-"Seattle, WA",pizza box,,
-"Seattle, WA",plastic bag,,
-"Seattle, WA",battery,,
-"Seattle, WA",coffee cup,,
-"Seattle, WA",food scraps,,
-"Seattle, WA",styrofoam,,
-"Seattle, WA",old phone,,
-"Austin, TX",plastic bottle,,
-"Austin, TX",glass jar,,
-"Austin, TX",aluminum can,,
-"Austin, TX",cardboard box,,
-"Austin, TX",newspaper,,
-"Austin, TX",pizza box,,
-"Austin, TX",plastic bag,,
-"Austin, TX",battery,,
-"Austin, TX",coffee cup,,
-"Austin, TX",food scraps,,
-"Austin, TX",styrofoam,,
-"Austin, TX",old phone,,
+place,item,expected,source_url,note
+"Pleasanton, CA",plastic bottle,recycle,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",glass jar,recycle,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",aluminum can,recycle,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",cardboard box,recycle,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",newspaper,recycle,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",greasy pizza box,compost,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",clean pizza box,recycle,https://resource.stopwaste.org/curbside/pleasanton,Non-greasy boxes are recycling
+"Pleasanton, CA",plastic bag,trash,https://resource.stopwaste.org/curbside/pleasanton,Listed as landfill; clean bags allowed in a grocery store drop-off
+"Pleasanton, CA",battery,,https://resource.stopwaste.org/curbside/pleasanton,Left blank: single-use goes in a zip bag on top of the recycling cart; rechargeable is not allowed
+"Pleasanton, CA",coffee cup,trash,https://resource.stopwaste.org/curbside/pleasanton,Plastic-coated paper products are listed as landfill
+"Pleasanton, CA",food scraps,compost,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",styrofoam,trash,https://resource.stopwaste.org/curbside/pleasanton,
+"Pleasanton, CA",old phone,,https://resource.stopwaste.org/curbside/pleasanton,Left blank: non-working phones have a special set-out; working ones are for donation
+"Seattle, WA",plastic bottle,recycle,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,
+"Seattle, WA",glass jar,recycle,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,
+"Seattle, WA",aluminum can,recycle,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,Flyer says metal cans
+"Seattle, WA",cardboard box,recycle,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,Flattened
+"Seattle, WA",newspaper,recycle,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,Flyer says paper
+"Seattle, WA",greasy pizza box,compost,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,
+"Seattle, WA",clean pizza box,,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,Left blank: the sources I found only clearly cover greasy boxes
+"Seattle, WA",plastic bag,,https://seattle.gov/Documents/Departments/SPU/Services/Recycling/EnglishRecyclingDoDont.pdf,Left blank: one SPU flyer says garbage and another mentions recycling clean bags
+"Seattle, WA",battery,dropoff,https://seattle.gov/Documents/Departments/SPU/Services/Recycling/EnglishRecyclingDoDont.pdf,Not allowed in garbage; transfer stations or HazWasteHelp sites
+"Seattle, WA",coffee cup,,https://www.seattle.gov/utilities/your-services/collection-and-disposal/how-to-sort-at-home,Left blank: I found no clear official answer
+"Seattle, WA",food scraps,compost,https://www.seattle.gov/documents/Departments/SPU/Services/Recycling/Top5ItemsWanted-GarbageCompostRecycling-Flyer.pdf,
+"Seattle, WA",styrofoam,,https://seattle.gov/Documents/Departments/SPU/Services/Recycling/EnglishRecyclingDoDont.pdf,Left blank: foam trays are garbage but foam blocks have a special collection
+"Seattle, WA",old phone,dropoff,https://seattle.gov/Documents/Departments/SPU/Services/Recycling/EnglishRecyclingDoDont.pdf,Not allowed in garbage; electronics go to EcycleWashington
+"Austin, TX",plastic bottle,recycle,https://www.austintexas.gov/recycling,
+"Austin, TX",glass jar,recycle,https://www.austintexas.gov/recycling,
+"Austin, TX",aluminum can,recycle,https://www.austintexas.gov/recycling,Metal
+"Austin, TX",cardboard box,recycle,https://www.austintexas.gov/recycling,Broken down
+"Austin, TX",newspaper,,https://www.austintexas.gov/recycling,Left blank: newspaper appears in both the recycling and compost guidance
+"Austin, TX",greasy pizza box,compost,https://www.austintexas.gov/CompostingGuide,
+"Austin, TX",clean pizza box,compost,https://www.austintexas.gov/CompostingGuide,Guide says pizza boxes go in the green cart
+"Austin, TX",plastic bag,dropoff,https://www.austintexas.gov/recycling,Keep out of blue cart; retailer or drop-off center
+"Austin, TX",battery,dropoff,https://www.austintexas.gov/resource-recovery/road-zero-waste/what-do-batteries-and-other-hard-recycle-items,Never in any cart
+"Austin, TX",coffee cup,,https://www.austintexas.gov/CompostingGuide,Left blank: guidance depends on the cup's coating
+"Austin, TX",food scraps,compost,https://www.austintexas.gov/CompostingGuide,
+"Austin, TX",styrofoam,dropoff,https://www.austintexas.gov/sites/default/files/files/Resource_Recovery/Composting-HowTo-Guide-_English_.pdf,Listed under the Recycle & Reuse Drop-Off Center
+"Austin, TX",old phone,dropoff,https://www.austintexas.gov/recycling,Electronics via bulk collection or the drop-off center
